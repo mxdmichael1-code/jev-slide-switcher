@@ -1,0 +1,33 @@
+<style>
+:root{--paper:#fff;--ink:#24352d;--muted:#7b837c;--line:#e0e5de;--accent:#286148}
+.stApp{background:#f7f8f5;color:var(--ink)}
+.stMainBlockContainer{max-width:1120px;padding:2.1rem 2.2rem 3rem}
+header[data-testid=stHeader]{display:none!important}[data-testid=stToolbar],#MainMenu,footer{display:none!important}
+[data-testid=stSidebar]{display:none!important}
+h1{font-weight:550!important;letter-spacing:-.055em!important;line-height:1.12!important;font-size:clamp(2rem,4vw,3.25rem)!important;color:var(--ink);padding:0!important;margin:0 0 .75rem!important}
+h2,h3{letter-spacing:-.025em!important;color:var(--ink)}
+p,[data-testid=stCaptionContainer]{color:#778076;line-height:1.6}
+.brand{font-size:26px;line-height:1;font-weight:750;letter-spacing:-.065em;color:#263b2e;margin:6px 0}.brand i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#7aa389;margin-left:4px}
+.brand small{font-size:11px;font-weight:450;letter-spacing:.06em;color:#929a90;text-transform:uppercase;margin-left:17px;vertical-align:middle}
+.eyebrow{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#969e94;margin:2.5rem 0 1.05rem}
+.hero-copy{max-width:580px;margin-bottom:1.6rem;color:#798174;font-size:15px}
+.steps{display:flex;gap:22px;align-items:center;font-size:12px;color:#a2aaa0;margin:1.7rem 0 1.5rem}.steps .active{color:#2b5b41;font-weight:600}.steps em{font-style:normal;display:inline-grid;place-items:center;width:23px;height:23px;border:1px solid #dbe1d6;border-radius:50%;font-size:10px;margin-right:7px}.steps .active em{background:#e9f0e8;border-color:#d6e2d3}
+.pill{display:inline-flex;align-items:center;gap:7px;color:#44714d;font-size:12px}.pill:before{content:'';width:6px;height:6px;border-radius:50%;background:#82a77d}.pill.neutral{color:#939a90}.pill.neutral:before{background:#b7bdb3}
+.deck-name{font-size:19px;font-weight:550;letter-spacing:-.025em;margin:0 0 5px;color:#283b2f}
+.section-label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#899383;margin:0 0 14px}
+.st-key-upload-card,.st-key-deck-card,.st-key-listening-card{background:white;border:1px solid var(--line);border-radius:17px;padding:24px}
+.st-key-upload-card{max-width:720px;padding:26px 30px 24px}.st-key-deck-card{padding:18px;overflow:hidden}.st-key-listening-card{padding:22px}.st-key-ready-copy{padding:23px 0 0 20px}
+[data-testid=stFileUploader] section{background:#f9faf7!important;border:1px dashed #ccd6c7!important;border-radius:11px!important;min-height:115px}
+[data-testid=stFileUploader] section small{font-size:11px;color:#a0a79a}[data-testid=stFileUploader] label{font-size:12px!important}
+.stButton>button,.stLinkButton>a,[data-testid=stPopoverButton]{border-radius:9px!important;min-height:40px;font-size:13px!important;transition:background .18s,transform .18s,box-shadow .18s;border-color:#dce3d6}
+.stButton>button:hover,.stLinkButton>a:hover{transform:translateY(-1px);box-shadow:0 3px 8px #243e2c08}.stButton>button[kind=primary]{background:#286148!important;border-color:#286148!important;color:#fff!important}.stButton>button[kind=tertiary]{color:#828e7c!important}
+[data-testid=stExpander]{border:0!important;border-top:1px solid #e4e8df!important;border-radius:0!important;margin-top:15px}[data-testid=stExpander] summary{font-size:12px;color:#7c8777;padding-left:0!important}
+.stButton>button[kind=primary] p{color:white}.stButton>button[kind=primary]:disabled{background:#e2e9df!important;border-color:#e2e9df!important}.stButton>button[kind=primary]:disabled p{color:#8b9685}
+.st-key-live-controls{margin:2px 0 8px}.st-key-live-controls p{margin:0!important}
+.st-key-transcript{border-top:1px solid #eef0e9;margin-top:12px;padding-top:10px}.st-key-transcript p{font-size:14px;color:#54624e;line-height:1.8}
+iframe.jev-presenter{display:block;width:100%;height:auto;aspect-ratio:16/10;border:0;border-radius:10px;background:#f0f3ed}iframe.jev-microphone{display:block;width:100%;height:125px;border:0;background:transparent}
+.st-key-upload-card,.st-key-deck-card,.st-key-listening-card,.hero-copy,h1{animation:arrive .38s ease-out both}
+@keyframes arrive{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:760px){.stMainBlockContainer{padding:1.4rem 1.1rem 2rem}.brand small{font-size:9px;margin-left:10px}.eyebrow{margin-top:1.8rem}.st-key-upload-card,.st-key-listening-card{padding:19px}.st-key-ready-copy{padding:10px 0}.steps{margin-top:1.2rem}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>

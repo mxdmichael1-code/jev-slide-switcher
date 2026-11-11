@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jev · Presenter</title>
+<style>*{box-sizing:border-box}body{margin:0;background:#fff;color:#51614e;font:12px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:grid;grid-template-rows:1fr auto;height:100vh}main{display:grid;place-items:center;min-height:0}img{width:100%;height:100%;object-fit:contain;min-height:0;max-height:calc(100vh - 52px)}footer{display:flex;align-items:center;gap:10px;padding:9px 2px 0;background:#fff;min-height:48px}button{font:inherit;background:#fafbf8;border:1px solid #e0e6db;color:#51614e;border-radius:7px;padding:7px 11px;cursor:pointer;transition:background .15s}button:hover:not(:disabled){background:#ecf2e7}button:disabled{opacity:.35;cursor:default}#status{color:#8e9887;margin-left:auto}.embedded #status{display:none}#full{margin-left:auto}body:fullscreen{background:#080c12}body:fullscreen footer{opacity:.15;background:#080c12}footer:hover{opacity:1!important}@media(prefers-reduced-motion:reduce){*{transition:none!important}}</style>
+</head><body><main><img id="slide" alt="Presentation slide"></main><footer><button id="prev">← Previous</button><span id="position">Connecting…</span><button id="next">Next →</button><button id="full">Full screen</button><span id="status"></span></footer>
+<script>
+if(new URLSearchParams(location.search).has('embedded'))document.body.classList.add('embedded');
+const token=location.hash.slice(1),headers={'X-Session-Token':token,'Content-Type':'application/json'};
+let current=0,count=0,url=null,busy=false;
+async function api(path,body){const r=await fetch('/api/'+path,{method:body?'POST':'GET',headers,body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(5000)});if(!r.ok)throw Error('Presenter disconnected');return r;}
+async function update(){if(busy)return;busy=true;try{
+ const s=await(await api('state')).json();count=s.count;
+ if(current!==s.slide){const r=await api('image/'+s.slide);const nextURL=URL.createObjectURL(await r.blob());const img=document.getElementById('slide');
+ await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=nextURL});if(url)URL.revokeObjectURL(url);url=nextURL;current=s.slide;}
+ await api('rendered',{slide:current});document.getElementById('position').textContent=`Slide ${current} / ${count}`;
+ document.getElementById('status').textContent=s.auto?'Automatic switching on':'Manual mode';
+ document.getElementById('prev').disabled=current<=1;document.getElementById('next').disabled=current>=count;
+}catch(e){document.getElementById('status').textContent='Disconnected — reopen from Streamlit';}finally{busy=false;}}
+async function navigate(delta){try{const s=await(await api('state')).json();await api('goto',{slide:Math.max(1,Math.min(s.count,s.slide+delta))});await update();}catch(e){document.getElementById('status').textContent='Navigation failed';}}
+document.getElementById('prev').onclick=()=>navigate(-1);document.getElementById('next').onclick=()=>navigate(1);
+document.getElementById('full').onclick=()=>document.documentElement.requestFullscreen();
+document.addEventListener('keydown',e=>{if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();navigate(1);}if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();navigate(-1);}});
+setInterval(update,400);update();
+</script></body></html>

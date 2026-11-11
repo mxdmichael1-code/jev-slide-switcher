@@ -1,0 +1,9 @@
+streamlit==1.66.1
+uvicorn>=0.30,<1
+python-pptx>=1.0.2,<2
+pypdfium2>=4.30,<6
+Pillow>=10,<14
+requests>=2.32,<3
+python-dotenv>=1,<2
+pytest>=8,<10
+pywin32>=306; sys_platform == 'win32'

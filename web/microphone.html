@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Microphone</title>
+<style>
+:root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#25362f;font-size:14px}*{box-sizing:border-box}body{margin:0;background:transparent;padding:2px}button{font:inherit;cursor:pointer}#listen{width:100%;padding:13px 18px;background:#286148;color:white;border:1px solid #286148;border-radius:11px;font-weight:600;display:flex;gap:10px;align-items:center;justify-content:center;transition:background .2s,transform .2s}#listen:hover:not(:disabled){background:#1f4d39;transform:translateY(-1px)}#listen:disabled{cursor:wait;opacity:.6}#listen.live{background:#f4f7f3;color:#285d45;border-color:#cad9ce}#listen.live:hover:not(:disabled){background:#e8efe5;color:#285d45}#listen.live svg{animation:pulse 1.7s ease infinite}#listen svg{width:18px;height:18px;flex:none}#status{margin:10px 0 0;line-height:1.5;font-size:12px;color:#6d786f;min-height:20px}#status.error{color:#a23f35}progress{width:100%;height:3px;accent-color:#286148;margin-top:9px}details{margin-top:12px;color:#727c74;font-size:12px}summary{cursor:pointer;list-style:none}summary::after{content:' +';color:#7f8981}details[open] summary::after{content:' −'}details>div{padding-top:10px;display:grid;gap:9px}select,input{font:inherit;max-width:100%;border:1px solid #dce3dc;border-radius:7px;padding:7px;background:white;color:#34453a}button.secondary{border:1px solid #dce3dc;border-radius:7px;padding:7px;background:white;color:#34453a}label{display:grid;gap:5px}.row{display:flex;gap:7px;flex-wrap:wrap}.note{font-size:11px;color:#7a837d;margin:0;line-height:1.5}@keyframes pulse{50%{opacity:.4}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<button id="listen" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3m-4 0h8"/></svg><span id="label">Preparing microphone…</span></button>
+<progress id="progress" max="1" value="0"></progress>
+<p id="status" role="status">Loading local speech recognition.</p>
+<div id="input-level" hidden><meter id="level" min="0" max="1" value="0" aria-label="Microphone input level" style="width:100%;height:8px"></meter><p id="input-name" class="note"></p></div>
+<details><summary>Audio options</summary><div>
+<label>Microphone<select id="device"><option value="">Browser default</option></select></label>
+<p id="permission" class="note"></p>
+<p id="tab-status" class="note"></p>
+<div class="row"><button id="sample" class="secondary">Try sample audio</button></div>
+<label>Or use an audio file<input id="audio" type="file" accept="audio/*,.wav"></label>
+<p class="note">Audio stays on your device. Transcript text is sent to Jev.</p>
+</div></details>
+<script type="module">
+import {MicTranscriber, Transcriber, ModelArch} from '/wasm/dist/index.js';
+import {decodeAudioFile, describeError} from '/assets/moonshine-ui.js';
+const token=location.hash.slice(1), session=crypto.randomUUID(), button=document.getElementById('listen'), label=document.getElementById('label'), status=document.getElementById('status'), progress=document.getElementById('progress'), device=document.getElementById('device');
+// The inline route shares the dashboard origin, so the panel can fit its content.
+new ResizeObserver(()=>{if(window.frameElement)window.frameElement.style.height=(document.body.scrollHeight+8)+'px';}).observe(document.body);
+let mic=null, running=false, starting=false, lastPartial=0, batch=null, streamingModel=null, capture=crypto.randomUUID(), stopMonitor=()=>{}, bridgeError=false;
+function message(text,error=false){status.textContent=text;status.className=error?'error':'';}
+async function send(text,final,id,latency_ms){
+ if(!text||(!final&&Date.now()-lastPartial<500))return;if(!final)lastPartial=Date.now();
+ const response=await fetch('/api/transcript',{method:'POST',headers:{'Content-Type':'application/json','X-Session-Token':token},body:JSON.stringify({text,final,event_id:session+':'+capture+':'+id,latency_ms}),signal:AbortSignal.timeout(5000)});
+ if(!response.ok)throw Error('Presentation disconnected. Return to the deck and start again.');bridgeError=false;
+}
+function forward(text,final,id,latency){send(text,final,id,latency).catch(error=>{bridgeError=true;message(error.message,true);});}
+function watchInput(instance){
+ // The existing v0.1.5 MicTranscriber exposes its capture node. Observe the
+ // same PCM messages that feed transcription; don't open a second microphone.
+ stopMonitor();
+ const area=document.getElementById('input-level'),meter=document.getElementById('level');
+ const track=instance.mediaStream?.getAudioTracks()[0];
+ const node=instance.workletNode||instance.scriptNode,port=instance.workletNode?.port;
+ let blocks=0,peak=0,lastSound=performance.now(),started=performance.now();
+ area.hidden=false;document.getElementById('input-name').textContent=track?.label||'Selected microphone';
+ function inspect(event){
+  const samples=port?event.data:event.inputBuffer.getChannelData(0);
+  if(!samples?.length)return;
+  blocks++;let sum=0;for(const value of samples)sum+=value*value;
+  const rms=Math.sqrt(sum/samples.length);peak=Math.max(peak,rms);
+  if(rms>.002)lastSound=performance.now();
+ }
+ if(port){port.addEventListener('message',inspect);port.start();}
+ else node?.addEventListener('audioprocess',inspect);
+ const timer=setInterval(()=>{
+  meter.value=Math.min(1,peak*8);peak=0;
+  if(bridgeError)return;
+  if(track?.readyState==='ended'){message('Microphone disconnected. Choose an input in Audio options.',true);return;}
+  if(track?.muted){message('Your microphone is muted by the system. Check its microphone permissions.',true);return;}
+  if(instance.audioContext?.state==='suspended'){label.textContent='Resume microphone';message('Audio is paused. Click Resume microphone to continue.');return;}
+  if(!blocks&&performance.now()-started>3000)message('Microphone opened, but no audio is arriving. Try another input in Audio options.',true);
+  else if(performance.now()-lastSound>8000)message('No sound detected. Speak or choose another microphone in Audio options.');
+  else if(blocks)message('Listening · speak in English.');
+ },300);
+ stopMonitor=()=>{clearInterval(timer);if(port)port.removeEventListener('message',inspect);else node?.removeEventListener('audioprocess',inspect);area.hidden=true;meter.value=0;};
+}
+async function prepare(){
+ if(mic)return mic;
+ if(!crossOriginIsolated)throw Error('Reload the app after starting it with ./run.sh app to enable the inline microphone.');
+ const base='/test-assets/small-streaming-en',names=['frontend.ort','encoder.ort','adapter.ort','cross_kv.ort','decoder_kv.ort','streaming_config.json','tokenizer.bin'];
+ const instance=new MicTranscriber().modelArch(ModelArch.SmallStreaming)
+  .onText(text=>forward(text,false,'partial'))
+  .onLine(line=>forward(line.text,true,line.id,line.lastTranscriptionLatencyMs))
+  .onError(error=>message(describeError(error),true))
+  .onProgress(value=>{progress.value=value;});
+ streamingModel=await Transcriber.loadFromUrls(Object.fromEntries(names.map(name=>[name,`${base}/${name}`])),{modelArch:ModelArch.SmallStreaming,onProgress:(loaded,total)=>{progress.value=total?loaded/total:0;}});
+ mic=instance.useTranscriber(streamingModel);progress.hidden=true;label.textContent='Start listening';button.disabled=false;message('Ready when you are.');void refreshDevices().catch(()=>{});return mic;
+}
+async function refreshDevices(){
+ const choices=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='audioinput');const selected=device.value;
+ device.replaceChildren(new Option('Browser default',''));choices.filter(d=>d.deviceId&&d.deviceId!=='default').forEach((d,i)=>device.add(new Option(d.label||`Microphone ${i+1}`,d.deviceId)));device.value=selected;
+}
+async function permissionStatus(){
+ try{
+  const permission=await navigator.permissions.query({name:'microphone'});
+  const render=()=>{document.getElementById('permission').textContent='Chrome microphone: '+({granted:'allowed',denied:'blocked',prompt:'permission needed'}[permission.state]||permission.state);};
+  render();permission.onchange=()=>{render();void refreshDevices().catch(()=>{});};
+ }catch{}
+}
+void permissionStatus();
+function tabStatus(){
+ const ready=document.visibilityState==='visible'&&document.hasFocus();
+ document.getElementById('tab-status').textContent=ready?'Chrome tab: ready':'Bring this Chrome tab to the front when starting the microphone.';
+ const policy=document.permissionsPolicy||document.featurePolicy;
+ if(policy&&!policy.allowsFeature('microphone'))message('The browser is blocking microphone access inside this panel.',true);
+}
+tabStatus();document.addEventListener('visibilitychange',tabStatus);window.addEventListener('focus',tabStatus);window.addEventListener('blur',tabStatus);
+button.onclick=async()=>{
+ // A suspended AudioContext needs a fresh click, even if start() is still pending.
+ if(starting||running&&mic?.audioContext?.state==='suspended'){void mic?.audioContext?.resume();return;}
+ button.disabled=true;
+ let startupWatch;
+ try{
+  if(running){stopMonitor();await mic.stop();running=false;label.textContent='Start listening';button.classList.remove('live');message('Microphone paused.');}
+  else{
+   const instance=await prepare();capture=crypto.randomUUID();starting=true;
+   label.textContent='Opening microphone…';message('Allow microphone access in Chrome if prompted.');
+   const requestedAt=performance.now();
+   startupWatch=setInterval(()=>{if(instance.audioContext?.state==='suspended'){label.textContent='Resume microphone';button.disabled=false;message('Click Resume microphone to start browser audio.');}else if(!instance.mediaStream&&performance.now()-requestedAt>8000){message('Still waiting for Chrome. Keep this tab open and allow microphone access.');}},300);
+   // Use the working Moonshine demo's browser-default audio processing.
+   instance.audioConstraints(device.value?{deviceId:{exact:device.value}}:true);
+   await instance.start();running=true;label.textContent='Pause listening';button.classList.add('live');message('Listening · speak in English.');watchInput(instance);void refreshDevices().catch(()=>{});
+  }
+ }catch(error){stopMonitor();await mic?.stop();running=false;button.classList.remove('live');message(error.name==='NotAllowedError'?'Microphone access is blocked. Allow it in Chrome site settings and in macOS Privacy & Security → Microphone.':describeError(error),true);label.textContent='Try microphone again';}finally{starting=false;clearInterval(startupWatch);button.disabled=false;}
+};
+device.onchange=async()=>{if(running){stopMonitor();await mic.stop();running=false;button.classList.remove('live');label.textContent='Start listening';message('Microphone changed. Start listening to continue.');}};
+document.querySelector('details').addEventListener('toggle',()=>{void refreshDevices().catch(()=>{});});
+async function transcribe(source){
+ const sample=document.getElementById('sample');sample.disabled=true;message('Transcribing audio…');
+ try{
+  if(!batch){const base='/test-assets/tiny-en';batch=await Transcriber.loadFromUrls({'encoder_model.ort':`${base}/encoder_model.ort`,'decoder_model_merged.ort':`${base}/decoder_model_merged.ort`,'tokenizer.bin':`${base}/tokenizer.bin`},{modelArch:ModelArch.Tiny});}
+  const {audio,sampleRate}=await decodeAudioFile(source), result=batch.transcribe(audio,{sampleRate}), text=result.lines.map(line=>line.text).join('\n');
+  await send(text,true,'file-'+crypto.randomUUID());message(`Audio transcribed · ${result.lines.length} phrases received.`);
+ }catch(error){message(describeError(error),true);}finally{sample.disabled=false;}
+}
+async function testStreaming(){
+ const sample=document.getElementById('sample');let stream;
+ if(starting){message('Allow microphone access in Chrome first, or reload this presentation to cancel the request.');return;}
+ sample.disabled=true;button.disabled=true;
+ try{
+  if(running){stopMonitor();await mic.stop();running=false;button.classList.remove('live');label.textContent='Start listening';}
+  await prepare();button.disabled=true;capture=crypto.randomUUID();message('Testing speech recognition…');
+  const response=await fetch('/test-assets/two_cities_16k.wav');if(!response.ok)throw Error('Sample audio is unavailable.');
+  const {audio,sampleRate}=await decodeAudioFile(await response.arrayBuffer()),lines=new Map(),pending=[];
+  stream=streamingModel.createStream();
+  stream.addListener({
+   onLineTextChanged:({line})=>{if(line.text?.trim())lines.set(line.id,line.text);forward(line.text,false,'sample-partial');},
+   onLineCompleted:({line})=>{if(line.text?.trim()){lines.set(line.id,line.text);pending.push(send(line.text,true,'sample-'+line.id,line.lastTranscriptionLatencyMs));}},
+  });
+  stream.start();const chunk=Math.round(sampleRate/2);
+  for(let i=0;i<audio.length;i+=chunk){stream.addAudio(audio.subarray(i,i+chunk),sampleRate);stream.transcribe();if(i%(chunk*8)===0)await new Promise(resolve=>setTimeout(resolve,0));}
+  stream.stop();await Promise.all(pending);
+  message(lines.size?`Speech test passed · ${lines.size} phrases received.`:'Audio test produced no speech. Reload and try again.',!lines.size);
+ }catch(error){message(describeError(error),true);}finally{stream?.close();sample.disabled=false;button.disabled=false;}
+}
+document.getElementById('sample').onclick=testStreaming;
+document.getElementById('audio').onchange=event=>{const file=event.target.files?.[0];if(file)transcribe(file);};
+window.addEventListener('pagehide',()=>{stopMonitor();void (mic?mic.stop():Promise.resolve()).finally(()=>{mic?.close();streamingModel?.close();batch?.close();});});
+prepare().catch(error=>{progress.hidden=true;label.textContent='Try microphone again';button.disabled=false;message(describeError(error),true);});
+</script></body></html>

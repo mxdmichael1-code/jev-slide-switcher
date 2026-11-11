@@ -1,0 +1,200 @@
+{
+  "presentation_flow": "The presentation builds sequentially from the core foundational problem of residential solar power variability, to the battery storage mechanism that addresses that variability, to the final design tradeoff between battery cost and coverage capacity that guides system selection. Each stage relies on the prior explanation being fully complete before the next concept is introduced, using connected three-step horizontal flow diagrams to carry the explanatory chain from cause, to solution, to decision.",
+  "transitions": [
+    {
+      "from_slide": 1,
+      "to_slide": 2,
+      "current_topic": "variable solar power output and the impact of clouds and daylight on solar generation",
+      "next_topic": "solar surplus power storage, including battery charging of daytime solar surplus and battery discharging to power evening electrical load after sunset",
+      "transition_intent": "The speaker has fully finished explaining how changing sunlight from clouds and daylight cycles creates variable solar panel output, completing the problem framing, and now needs the next visual to explain the storage mechanism that addresses that surplus power problem.",
+      "completion_signals": [
+        "Full explanation of why clouds reduce solar generation is delivered",
+        "The causal chain from SUN / CLOUD input through SOLAR PANEL processing to VARIABLE POWER output is fully walked through using the slide 1 diagram arrows",
+        "The foundational problem of inconsistent solar power production is established without remaining explanatory gaps on how sunlight variability drives output changes"
+      ],
+      "next_topic_signals": [
+        "The explanatory goal shifts from describing the variable output problem to explaining how surplus solar power is stored for later use",
+        "The speaker is ready to walk through a new causal flow of power moving from solar surplus into storage",
+        "The mechanism of battery charging and discharging becomes the active explanation target"
+      ],
+      "stay_signals": [
+        "The speaker is still describing how cloud cover or daylight cycles change solar generation levels",
+        "The speaker is still referencing the yellow 'SUN / CLOUD', blue 'SOLAR PANEL', or peach 'VARIABLE POWER' blocks to explain the cause of inconsistent output",
+        "The explanation of why clouds reduce solar generation has not been completed"
+      ],
+      "false_positive_traps": [
+        "Briefly mentioning that surplus power will need to be stored as a teaser for the upcoming topic is not enough to advance",
+        "Previewing that batteries solve the variability problem before finishing the cloud impact explanation is a false advance trigger",
+        "Referencing stored power as a future agenda item does not signal the current problem explanation is complete"
+      ],
+      "visual_handoff": [
+        "The speaker would now point to the new three-step flow starting with the blue 'SOLAR SURPLUS' input block, teal 'BATTERY' storage block, and light purple 'EVENING LOAD' output block to explain charging and discharging flows using the diagram arrows"
+      ]
+    },
+    {
+      "from_slide": 2,
+      "to_slide": 3,
+      "current_topic": "solar surplus power storage, covering battery charging from daytime solar surplus and battery discharging to meet post-sunset evening load",
+      "next_topic": "solar battery capacity selection, centered on the cost vs energy coverage tradeoff and upfront investment cost comparison across different battery sizes",
+      "transition_intent": "The speaker has fully clarified the battery charging and discharging mechanism using the slide 2 diagram, and now needs the final visual to introduce the design decision tradeoff between battery cost and coverage capacity.",
+      "completion_signals": [
+        "The full charge/discharge mechanism is explained clearly using the slide 2 diagram arrows, tracing flow from SOLAR SURPLUS into BATTERY storage and out to EVENING LOAD",
+        "The audience understands how batteries resolve the earlier variable output problem by storing daytime surplus for after-sunset use",
+        "The explanatory goal of describing how battery storage works is fully completed"
+      ],
+      "next_topic_signals": [
+        "The explanatory goal shifts from how battery storage functions to how to select an appropriate battery capacity",
+        "The speaker introduces the decision between different battery sizes tied to cost and coverage length",
+        "The comparison of usable capacity and upfront investment becomes the active explanation target"
+      ],
+      "stay_signals": [
+        "The speaker is still walking through the arrows connecting SOLAR SURPLUS, BATTERY, and EVENING LOAD to explain charging or discharging",
+        "The mechanism of storing daytime surplus or releasing power for evening use has not been made clear",
+        "The speaker is still answering clarifying questions about how the battery moves power between surplus generation and evening demand"
+      ],
+      "false_positive_traps": [
+        "Mentioning cost or battery size in passing while explaining the charging/discharging flow is not enough to advance",
+        "Previewing that there is a capacity decision ahead before finishing the mechanism explanation is a false trigger",
+        "Noting that batteries have costs does not mean the operational explanation of the battery is complete"
+      ],
+      "visual_handoff": [
+        "The speaker would now refer to the three-step tradeoff diagram with the teal 'SMALLER BATTERY (Lower cost)' block, central yellow 'TRADEOFF' block, and light purple 'LARGER BATTERY (More coverage)' block to frame the capacity selection decision"
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "deck_sha256": "70bb37de0b4f8fa39c2be21ed76b056e6074cf2b00ea1823f806b3b23898e3f4",
+  "preprocessing_fingerprint": "e5e88748a3bc8ea88b3fef2a5e6cbc1d7f318cea78e35eb37a3a4284812488b4",
+  "slide_understanding": [
+    {
+      "slide_number": 1,
+      "summary": "This opening slide explains the core foundational problem of residential solar energy: solar panel power output is not constant, because sunlight levels change due to cloud cover and daylight cycles. The speaker is instructed to fully explain why clouds reduce solar generation before moving to the next topic of surplus power storage.",
+      "topics": [
+        "variable solar power output",
+        "impact of clouds and daylight on solar generation"
+      ],
+      "visual_elements": [
+        "Three-step horizontal flow diagram connected by right-pointing arrows, with colored rounded rectangle blocks: yellow 'SUN / CLOUD' input block, blue 'SOLAR PANEL' processing block, peach 'VARIABLE POWER' output block, demonstrating the causal chain from variable sunlight to inconsistent solar power production"
+      ]
+    },
+    {
+      "slide_number": 2,
+      "summary": "This slide explains how battery storage solves the variable output problem introduced on the prior slide: excess power generated by solar panels during daylight hours is stored in a battery, which then discharges to meet household electricity demand after sunset. The speaker is told to use the diagram arrows to explain battery charging and discharging before transitioning to the cost-capacity tradeoff topic.",
+      "topics": [
+        "solar surplus power storage",
+        "battery charging (storing daytime solar surplus)",
+        "battery discharging (powering evening electrical load after sunset)"
+      ],
+      "visual_elements": [
+        "Three-step horizontal flow diagram connected by right-pointing arrows, with colored rounded rectangle blocks: blue 'SOLAR SURPLUS' input block, teal 'BATTERY' storage block, light purple 'EVENING LOAD' output block, demonstrating the flow of stored solar power to meet post-sunset energy demand"
+      ]
+    },
+    {
+      "slide_number": 3,
+      "summary": "This final slide presents the key decision tradeoff when designing a solar battery system: selecting battery capacity requires balancing storage coverage against upfront cost. Larger batteries can supply power through longer low-sunlight gaps but have higher initial investment costs, while smaller batteries cost less but provide less coverage. The speaker is instructed not to advance past this final slide.",
+      "topics": [
+        "solar battery capacity selection",
+        "cost vs energy coverage tradeoff for solar storage systems",
+        "upfront investment cost comparison for different battery sizes"
+      ],
+      "visual_elements": [
+        "Three-step horizontal flow diagram connected by right-pointing arrows, with colored rounded rectangle blocks: teal 'SMALLER BATTERY (Lower cost)' block, yellow central 'TRADEOFF' block, light purple 'LARGER BATTERY (More coverage)' block, visually framing the comparison and compromise between lower cost and extended power coverage"
+      ]
+    }
+  ],
+  "provider": "Doubao / Volcengine Ark",
+  "model": "doubao-seed-2-1-pro-260628",
+  "created_at": "2026-11-03T01:05:46.127510+00:00",
+  "api_calls": [
+    {
+      "model": "doubao-seed-2-1-pro-260628",
+      "latency_ms": 22520.7,
+      "usage": {
+        "completion_tokens": 514,
+        "prompt_tokens": 4317,
+        "total_tokens": 4831,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      }
+    },
+    {
+      "model": "doubao-seed-2-1-pro-260628",
+      "latency_ms": 28757.6,
+      "usage": {
+        "completion_tokens": 986,
+        "prompt_tokens": 929,
+        "total_tokens": 1915,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      }
+    }
+  ],
+  "completion_prompt_version": "minimal-relationships-v3",
+  "completion_provider": "Doubao / Volcengine Ark",
+  "completion_model": "doubao-seed-2-1-pro-260628",
+  "completion_created_at": "2026-11-04T14:48:28.001722+00:00",
+  "completion_api_calls": [
+    {
+      "model": "doubao-seed-2-1-pro-260628",
+      "latency_ms": 9398.8,
+      "usage": {
+        "completion_tokens": 300,
+        "prompt_tokens": 1391,
+        "total_tokens": 1691,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      }
+    }
+  ],
+  "completion_goals": [
+    {
+      "slide_number": 1,
+      "main_message": "Residential solar panel power output is variable because sunlight levels change with cloud cover and daylight cycles.",
+      "essential_points": [
+        "Changes in the sunlight reaching a solar panel change how much electrical power it produces."
+      ],
+      "optional_details": [
+        "Explain how clouds reduce solar generation before moving to the next topic; the causal flow runs from sun/cloud conditions, through the solar panel, to variable power output."
+      ]
+    },
+    {
+      "slide_number": 2,
+      "main_message": "Battery storage resolves solar output variability by storing excess daytime solar power to use for evening electricity demand after sunset.",
+      "essential_points": [
+        "Surplus daytime solar electricity is stored in the battery.",
+        "The stored electricity supplies the evening load when sunlight is unavailable."
+      ],
+      "optional_details": [
+        "Use the diagram arrows to explain the charging and discharging flow; confirm the storage mechanism is clear before introducing the cost-capacity tradeoff."
+      ]
+    },
+    {
+      "slide_number": 3,
+      "main_message": "Selecting a solar battery capacity requires balancing upfront cost against how much low-sunlight coverage the battery provides.",
+      "essential_points": [
+        "Smaller batteries have lower upfront cost but provide less power coverage during low-sunlight gaps.",
+        "Larger batteries provide coverage for longer low-sunlight gaps but have higher upfront investment cost."
+      ],
+      "optional_details": [
+        "This is the final slide; do not advance automatically; frame the decision as a direct tradeoff between lower cost and extended coverage."
+      ]
+    }
+  ],
+  "completion_goals_review": {
+    "by": "Codex",
+    "at": "2026-11-04T14:52:10.662698+00:00",
+    "reason": "Review of slide text, diagrams and the recovered rehearsal: separate core relationships from examples and remove duplicate requirements."
+  }
+}
